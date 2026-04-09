@@ -27,6 +27,20 @@ const ACTIVE_AGENTS = [
   { name: 'DATA_PROPHET', status: 'STATUS: AVAILABLE FOR SYNC', color: 'text-blue-400' },
 ]
 
+const TASK_CYCLE_OPTIONS = ['一次性任务', '每周重复', '每月重复', '长期合作（3个月+）']
+
+const BUDGET_OPTIONS = [
+  '500元以内',
+  '500-2000元/月',
+  '2000-5000元/月',
+  '5000-10000元/月',
+  '10000元以上/月',
+  '面议',
+]
+
+const TRIAL_OPTIONS = ['是', '否']
+
+
 export default function NewTaskPage() {
   const router = useRouter()
   const [title, setTitle] = useState('')
@@ -34,10 +48,14 @@ export default function NewTaskPage() {
   const [neededRoles, setNeededRoles] = useState<string[]>([])
   const [outputFormat, setOutputFormat] = useState('')
   const [contact, setContact] = useState('')
+  const [taskCycle, setTaskCycle] = useState('')
+  const [expectedOutput, setExpectedOutput] = useState('')
+  const [budgetRange, setBudgetRange] = useState('')
+  const [needTrial, setNeedTrial] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitResult, setSubmitResult] = useState<'success' | 'error' | null>(null)
 
-  const isValid = title.trim() !== '' && description.trim() !== '' && contact.trim() !== ''
+  const isValid = title.trim() !== '' && description.trim() !== '' && contact.trim() !== '' && taskCycle !== '' && expectedOutput.trim() !== '' && budgetRange !== ''
 
   function toggleRole(role: string) {
     setNeededRoles((prev) =>
@@ -55,6 +73,10 @@ export default function NewTaskPage() {
       needed_roles: neededRoles,
       output_format: outputFormat || null,
       contact: contact.trim(),
+      task_cycle: taskCycle,
+      expected_output: expectedOutput.trim(),
+      budget_range: budgetRange,
+      need_trial: needTrial || null,
     })
 
     if (error) {
@@ -203,6 +225,68 @@ export default function NewTaskPage() {
                     }`}>
                       {opt}
                     </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Task Cycle */}
+            <div>
+              <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-4">
+                {'任务周期 / TASK_CYCLE'}
+              </label>
+              <div className="flex flex-wrap gap-4">
+                {TASK_CYCLE_OPTIONS.map((opt) => (
+                  <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                    <span className={`w-4 h-4 border rounded-full flex items-center justify-center transition-all ${taskCycle === opt ? 'border-[#58A6FF] bg-[#58A6FF]' : 'border-[#30363D] group-hover:border-[#484F58]'}`}>
+                      {taskCycle === opt && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
+                    </span>
+                    <input type="radio" name="task_cycle" value={opt} checked={taskCycle === opt} onChange={() => setTaskCycle(opt)} className="hidden" />
+                    <span className={`text-xs font-mono tracking-wider transition-colors ${taskCycle === opt ? 'text-[#E6EDF3]' : 'text-[#8B949E] group-hover:text-[#C9D1D9]'}`}>{opt}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Expected Output */}
+            <div>
+              <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-3">
+                {'预计产出量 / EXPECTED_OUTPUT'}
+              </label>
+              <input type="text" value={expectedOutput} onChange={(e) => setExpectedOutput(e.target.value)} placeholder="例：每天30条产品描述 / 每周1份分析报告" className="w-full bg-[#161B27] border border-[#21262D] px-4 py-3 text-sm text-[#E6EDF3] placeholder-[#30363D] focus:outline-none focus:border-[#58A6FF]/50 transition-colors font-mono" />
+            </div>
+
+            {/* Budget Range */}
+            <div>
+              <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-3">
+                {'预算范围 / BUDGET_RANGE'}
+              </label>
+              <div className="relative">
+                <select value={budgetRange} onChange={(e) => setBudgetRange(e.target.value)} className="w-full bg-[#161B27] border border-[#21262D] px-4 py-3 text-sm text-[#E6EDF3] focus:outline-none focus:border-[#58A6FF]/50 transition-colors font-mono appearance-none">
+                  <option value="">请选择预算范围...</option>
+                  {BUDGET_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-[#8B949E]">
+                  ▼
+                </div>
+              </div>
+            </div>
+
+            {/* Need Trial */}
+            <div>
+              <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-4">
+                {'需要免费试跑 / NEED_TRIAL (选填)'}
+              </label>
+              <div className="flex flex-wrap gap-4">
+                {TRIAL_OPTIONS.map((opt) => (
+                  <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                    <span className={`w-4 h-4 border rounded-full flex items-center justify-center transition-all ${needTrial === opt ? 'border-[#58A6FF] bg-[#58A6FF]' : 'border-[#30363D] group-hover:border-[#484F58]'}`}>
+                      {needTrial === opt && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
+                    </span>
+                    <input type="radio" name="need_trial" value={opt} checked={needTrial === opt} onChange={() => setNeedTrial(opt)} className="hidden" />
+                    <span className={`text-xs font-mono tracking-wider transition-colors ${needTrial === opt ? 'text-[#E6EDF3]' : 'text-[#8B949E] group-hover:text-[#C9D1D9]'}`}>{opt}</span>
                   </label>
                 ))}
               </div>
