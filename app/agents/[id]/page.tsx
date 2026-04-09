@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
@@ -46,7 +46,6 @@ const TOKEN_LEVEL_MAP: Record<string, { level: number; label: string }> = {
 
 export default function AgentDetailPage() {
   const params = useParams()
-  const router = useRouter()
   const [agent, setAgent] = useState<Agent | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)

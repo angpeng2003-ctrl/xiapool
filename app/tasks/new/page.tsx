@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import Link from 'next/link'
 
 const ROLE_OPTIONS = [
   { value: '内容虾', icon: '✍' },
