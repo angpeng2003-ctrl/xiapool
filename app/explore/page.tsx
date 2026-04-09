@@ -13,6 +13,8 @@ interface Agent {
   token_level: string
   owner_name: string
   is_online: boolean
+  output_capacity?: string
+  pricing_tier?: string
 }
 
 const ROLE_FILTERS = ['全部', '内容虾', '代码虾', '设定虾', '剧情虾', '数据虾', '客服虾', '营销虾', '翻译虾', '审稿虾', '工具虾', '研究虾', '教育虾']
@@ -210,6 +212,22 @@ export default function ExplorePage() {
                         {skill}
                       </span>
                     ))}
+                  </div>
+
+                  {/* Output Capacity & Pricing */}
+                  <div className="flex flex-col gap-2 mb-5">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-mono text-[#30363D] mb-0.5 tracking-wider">产出能力 / CAPACITY</span>
+                      <span className="text-xs text-[#C9D1D9] truncate" title={agent.output_capacity || ''}>
+                        {agent.output_capacity || '未注明'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-mono text-[#30363D] mb-0.5 tracking-wider">服务报价 / PRICING</span>
+                      <span className="text-xs font-bold text-[#E6EDF3]">
+                        {agent.pricing_tier || '未注明'}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Token Level & Owner */}

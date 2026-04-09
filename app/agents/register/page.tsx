@@ -4,10 +4,29 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+const WORKFLOW_TOOLS = ['Dify', 'Coze', 'LangChain', 'LangGraph', 'CrewAI', 'AutoGen', '自研脚本', '其他']
+
+const PRICING_OPTIONS = [
+  '按条计费（5-15元/条）',
+  '按条计费（15-50元/条）',
+  '按条计费（50-200元/条）',
+  '包月（3000元以内）',
+  '包月（3000-8000元）',
+  '包月（8000元以上）',
+  '面议',
+]
+
+const FREE_TRIAL_OPTIONS = [
+  '是，支持首单免费试跑',
+  '是，支持首单半价',
+  '否',
+]
+
 export default function RegisterAgentPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [workflowTools, setWorkflowTools] = useState<string[]>([]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,9 +52,14 @@ export default function RegisterAgentPage() {
       input_pref: formData.get("input_preference") ? [formData.get("input_preference")] : [],
       output_style: formData.get("output_style") || null,
       token_level: formData.get("token_usage"),
+      output_capacity: formData.get("output_capacity"),
+      workflow_tools: workflowTools,
+      service_cases: formData.get("service_cases") || null,
+      pricing_tier: formData.get("pricing_tier"),
+      free_trial: formData.get("free_trial"),
       owner_name: formData.get("author_name"),
       is_online: true,
-      recommended_collab: [], // 默认空数组
+      recommended_collab: [],
     };
 
     const { data, error } = await supabase
@@ -220,6 +244,121 @@ export default function RegisterAgentPage() {
                       <div className="absolute w-2 h-2 rounded-full bg-[#C0392B] scale-0 peer-checked:scale-100 transition-transform pointer-events-none" />
                     </div>
                     <span className="text-sm text-[#8B949E] group-hover:text-[#E6EDF3] peer-checked:text-[#E6EDF3] transition-colors">{mode}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* 产出能力 */}
+            <div>
+              <label htmlFor="output_capacity" className="block text-sm font-medium text-[#E6EDF3]">
+                产出能力 <span className="text-[#C0392B]">*</span>
+              </label>
+              <input
+                type="text"
+                name="output_capacity"
+                id="output_capacity"
+                required
+                placeholder="例：每天可产出50条小红书文案 / 每周3份竞品分析报告"
+                className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors"
+              />
+            </div>
+
+            {/* 工作流工具 */}
+            <div>
+              <label className="block text-sm font-medium text-[#E6EDF3] mb-3">
+                工作流工具 <span className="text-[#C0392B]">*</span>
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {WORKFLOW_TOOLS.map((tool) => {
+                  const checked = workflowTools.includes(tool)
+                  return (
+                    <label
+                      key={tool}
+                      className={`flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-md border text-sm transition-all ${
+                        checked
+                          ? 'border-[#C0392B]/50 bg-[#C0392B]/10 text-[#E6EDF3]'
+                          : 'border-[#30363D] bg-[#0D1117] text-[#8B949E] hover:border-[#484F58] hover:text-[#E6EDF3]'
+                      }`}
+                    >
+                      <div className="relative flex items-center justify-center shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() =>
+                            setWorkflowTools((prev) =>
+                              prev.includes(tool)
+                                ? prev.filter((t) => t !== tool)
+                                : [...prev, tool]
+                            )
+                          }
+                          className="peer appearance-none w-4 h-4 rounded border border-[#30363D] bg-[#0D1117] checked:border-[#C0392B] checked:bg-[#C0392B] transition-all"
+                        />
+                        <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span>{tool}</span>
+                    </label>
+                  )
+                })}
+              </div>
+              {workflowTools.length === 0 && (
+                <p className="text-[10px] font-mono text-[#C0392B]/60 mt-2 tracking-wider">请至少选择一个工具</p>
+              )}
+            </div>
+
+            {/* 已服务案例 */}
+            <div>
+              <label htmlFor="service_cases" className="block text-sm font-medium text-[#E6EDF3]">
+                已服务案例 <span className="text-[#8B949E] font-normal">（选填）</span>
+              </label>
+              <textarea
+                name="service_cases"
+                id="service_cases"
+                rows={3}
+                placeholder="简要描述你用这套工作流服务过的客户或项目，例：为3个美妆品牌持续产出小红书内容2个月"
+                className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors resize-none"
+              />
+            </div>
+
+            {/* 服务报价 */}
+            <div>
+              <label htmlFor="pricing_tier" className="block text-sm font-medium text-[#E6EDF3]">
+                服务报价 <span className="text-[#C0392B]">*</span>
+              </label>
+              <select
+                name="pricing_tier"
+                id="pricing_tier"
+                required
+                className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] transition-colors"
+              >
+                <option value="">请选择报价方式...</option>
+                {PRICING_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 可提供免费试用 */}
+            <div>
+              <label className="block text-sm font-medium text-[#E6EDF3] mb-3">
+                可提供免费试用 <span className="text-[#C0392B]">*</span>
+              </label>
+              <div className="space-y-3">
+                {FREE_TRIAL_OPTIONS.map((option) => (
+                  <label key={option} className="flex items-center gap-2 cursor-pointer group">
+                    <div className="relative flex items-center justify-center">
+                      <input
+                        type="radio"
+                        name="free_trial"
+                        value={option}
+                        required
+                        className="peer appearance-none w-4 h-4 rounded-full border border-[#30363D] bg-[#0D1117] checked:border-[#C0392B] checked:bg-[#0D1117] transition-all hover:border-[#C0392B]"
+                      />
+                      <div className="absolute w-2 h-2 rounded-full bg-[#C0392B] scale-0 peer-checked:scale-100 transition-transform pointer-events-none" />
+                    </div>
+                    <span className="text-sm text-[#8B949E] group-hover:text-[#E6EDF3] transition-colors">{option}</span>
                   </label>
                 ))}
               </div>
