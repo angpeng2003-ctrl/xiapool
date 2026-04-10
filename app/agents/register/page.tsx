@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const WORKFLOW_TOOLS = ['Dify', 'Coze', 'LangChain', 'LangGraph', 'CrewAI', 'AutoGen', '自研脚本', '其他']
 
@@ -24,6 +25,7 @@ const FREE_TRIAL_OPTIONS = [
 
 export default function RegisterAgentPage() {
   const router = useRouter();
+  const { dict } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [workflowTools, setWorkflowTools] = useState<string[]>([]);
@@ -82,10 +84,10 @@ export default function RegisterAgentPage() {
       <div className="mx-auto max-w-2xl">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-[#E6EDF3] tracking-wide">
-            创建我的 AI 小龙虾
+            {dict.register.title}
           </h1>
           <p className="mt-2 text-sm text-[#8B949E]">
-            把你的 AI 放进虾池，让它接受派遣
+            {dict.register.subtitle}
           </p>
         </div>
 
@@ -100,14 +102,14 @@ export default function RegisterAgentPage() {
             {/* 1. 小龙虾名称 */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-[#E6EDF3]">
-                小龙虾名称 <span className="text-[#C0392B]">*</span>
+                {dict.register.agentName} <span className="text-[#C0392B]">*</span>
               </label>
               <input
                 type="text"
                 name="name"
                 id="name"
                 required
-                placeholder="给你的 AI 起一个名字"
+                placeholder={dict.register.agentNamePholder}
                 className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors"
               />
             </div>
@@ -116,7 +118,7 @@ export default function RegisterAgentPage() {
               {/* 2. 角色类型 */}
               <div>
                 <label htmlFor="role" className="block text-sm font-medium text-[#E6EDF3]">
-                  角色类型 <span className="text-[#C0392B]">*</span>
+                  {dict.register.roleType} <span className="text-[#C0392B]">*</span>
                 </label>
                 <select
                   name="role"
@@ -124,26 +126,17 @@ export default function RegisterAgentPage() {
                   required
                   className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] transition-colors"
                 >
-                  <option value="">请选择...</option>
-                  <option value="内容虾">内容虾</option>
-                  <option value="代码虾">代码虾</option>
-                  <option value="设定虾">设定虾</option>
-                  <option value="剧情虾">剧情虾</option>
-                  <option value="数据虾">数据虾</option>
-                  <option value="客服虾">客服虾</option>
-                  <option value="营销虾">营销虾</option>
-                  <option value="翻译虾">翻译虾</option>
-                  <option value="审稿虾">审稿虾</option>
-                  <option value="工具虾">工具虾</option>
-                  <option value="研究虾">研究虾</option>
-                  <option value="教育虾">教育虾</option>
+                  <option value="">{dict.register.selectPholder}</option>
+                  {['内容虾', '代码虾', '设定虾', '剧情虾', '数据虾', '客服虾', '营销虾', '翻译虾', '审稿虾', '工具虾', '研究虾', '教育虾'].map(k => (
+                    <option key={k} value={k}>{dict.explore.roleMapping[k as keyof typeof dict.explore.roleMapping] || k}</option>
+                  ))}
                 </select>
               </div>
 
               {/* 3. 运行框架 */}
               <div>
                 <label htmlFor="framework" className="block text-sm font-medium text-[#E6EDF3]">
-                  运行框架 <span className="text-[#C0392B]">*</span>
+                  {dict.register.framework} <span className="text-[#C0392B]">*</span>
                 </label>
                 <select
                   name="framework"
@@ -151,7 +144,7 @@ export default function RegisterAgentPage() {
                   required
                   className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] transition-colors"
                 >
-                  <option value="">请选择...</option>
+                  <option value="">{dict.register.selectPholder}</option>
                   <option value="LangChain">LangChain</option>
                   <option value="LangGraph">LangGraph</option>
                   <option value="CrewAI">CrewAI</option>
@@ -170,14 +163,14 @@ export default function RegisterAgentPage() {
             {/* 4. 一句话介绍 */}
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-[#E6EDF3]">
-                一句话介绍 <span className="text-[#C0392B]">*</span>
+                {dict.register.briefIntro} <span className="text-[#C0392B]">*</span>
               </label>
               <input
                 type="text"
                 name="description"
                 id="description"
                 required
-                placeholder="这只虾擅长做什么？"
+                placeholder={dict.register.briefIntroPholder}
                 className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors"
               />
             </div>
@@ -185,14 +178,14 @@ export default function RegisterAgentPage() {
             {/* 5. 擅长技能 */}
             <div>
               <label htmlFor="skills" className="block text-sm font-medium text-[#E6EDF3]">
-                擅长技能 <span className="text-[#C0392B]">*</span>
+                {dict.register.skills} <span className="text-[#C0392B]">*</span>
               </label>
               <input
                 type="text"
                 name="skills"
                 id="skills"
                 required
-                placeholder="用逗号分隔，最多5个，如：世界观搭建,设定文档,概念拆解"
+                placeholder={dict.register.skillsPholder}
                 className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors"
               />
             </div>
@@ -200,13 +193,13 @@ export default function RegisterAgentPage() {
             {/* 6. 输入偏好 */}
             <div>
               <label htmlFor="input_preference" className="block text-sm font-medium text-[#E6EDF3]">
-                输入偏好 <span className="text-[#8B949E] font-normal">（选填）</span>
+                {dict.register.inputPref} <span className="text-[#8B949E] font-normal">{dict.register.optional}</span>
               </label>
               <textarea
                 name="input_preference"
                 id="input_preference"
                 rows={3}
-                placeholder="这只虾喜欢接收什么样的输入？（可不填）"
+                placeholder={dict.register.inputPrefPholder}
                 className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors resize-none"
               />
             </div>
@@ -214,13 +207,13 @@ export default function RegisterAgentPage() {
             {/* 7. 输出风格 */}
             <div>
               <label htmlFor="output_style" className="block text-sm font-medium text-[#E6EDF3]">
-                输出风格 <span className="text-[#8B949E] font-normal">（选填）</span>
+                {dict.register.outputStyle} <span className="text-[#8B949E] font-normal">{dict.register.optional}</span>
               </label>
               <textarea
                 name="output_style"
                 id="output_style"
                 rows={3}
-                placeholder="这只虾通常输出什么风格的内容？（可不填）"
+                placeholder={dict.register.outputStylePholder}
                 className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors resize-none"
               />
             </div>
@@ -228,7 +221,7 @@ export default function RegisterAgentPage() {
             {/* 8. Token消耗 */}
             <div>
               <label className="block text-sm font-medium text-[#E6EDF3] mb-3">
-                Token消耗 <span className="text-[#C0392B]">*</span>
+                {dict.register.tokenUsage} <span className="text-[#C0392B]">*</span>
               </label>
               <div className="flex flex-wrap gap-6">
                 {["轻量型", "标准型", "重度型"].map((mode) => (
@@ -252,14 +245,14 @@ export default function RegisterAgentPage() {
             {/* 产出能力 */}
             <div>
               <label htmlFor="output_capacity" className="block text-sm font-medium text-[#E6EDF3]">
-                产出能力 <span className="text-[#C0392B]">*</span>
+                {dict.register.outputCapacity} <span className="text-[#C0392B]">*</span>
               </label>
               <input
                 type="text"
                 name="output_capacity"
                 id="output_capacity"
                 required
-                placeholder="例：每天可产出50条小红书文案 / 每周3份竞品分析报告"
+                placeholder={dict.register.outputCapacityPholder}
                 className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors"
               />
             </div>
@@ -267,7 +260,7 @@ export default function RegisterAgentPage() {
             {/* 工作流工具 */}
             <div>
               <label className="block text-sm font-medium text-[#E6EDF3] mb-3">
-                工作流工具 <span className="text-[#C0392B]">*</span>
+                {dict.register.workflowTools} <span className="text-[#C0392B]">*</span>
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {WORKFLOW_TOOLS.map((tool) => {
@@ -304,20 +297,20 @@ export default function RegisterAgentPage() {
                 })}
               </div>
               {workflowTools.length === 0 && (
-                <p className="text-[10px] font-mono text-[#C0392B]/60 mt-2 tracking-wider">请至少选择一个工具</p>
+                <p className="text-[10px] font-mono text-[#C0392B]/60 mt-2 tracking-wider">{dict.register.workflowToolsTip}</p>
               )}
             </div>
 
             {/* 已服务案例 */}
             <div>
               <label htmlFor="service_cases" className="block text-sm font-medium text-[#E6EDF3]">
-                已服务案例 <span className="text-[#8B949E] font-normal">（选填）</span>
+                {dict.register.serviceCases} <span className="text-[#8B949E] font-normal">{dict.register.optional}</span>
               </label>
               <textarea
                 name="service_cases"
                 id="service_cases"
                 rows={3}
-                placeholder="简要描述你用这套工作流服务过的客户或项目，例：为3个美妆品牌持续产出小红书内容2个月"
+                placeholder={dict.register.serviceCasesPholder}
                 className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors resize-none"
               />
             </div>
@@ -325,7 +318,7 @@ export default function RegisterAgentPage() {
             {/* 服务报价 */}
             <div>
               <label htmlFor="pricing_tier" className="block text-sm font-medium text-[#E6EDF3]">
-                服务报价 <span className="text-[#C0392B]">*</span>
+                {dict.register.pricingTier} <span className="text-[#C0392B]">*</span>
               </label>
               <select
                 name="pricing_tier"
@@ -333,7 +326,7 @@ export default function RegisterAgentPage() {
                 required
                 className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] transition-colors"
               >
-                <option value="">请选择报价方式...</option>
+                <option value="">{dict.register.pricingPholder}</option>
                 {PRICING_OPTIONS.map((opt) => (
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
@@ -343,7 +336,7 @@ export default function RegisterAgentPage() {
             {/* 可提供免费试用 */}
             <div>
               <label className="block text-sm font-medium text-[#E6EDF3] mb-3">
-                可提供免费试用 <span className="text-[#C0392B]">*</span>
+                {dict.register.freeTrial} <span className="text-[#C0392B]">*</span>
               </label>
               <div className="space-y-3">
                 {FREE_TRIAL_OPTIONS.map((option) => (
@@ -370,14 +363,14 @@ export default function RegisterAgentPage() {
               {/* 9. 你的称呼 */}
               <div>
                 <label htmlFor="author_name" className="block text-sm font-medium text-[#E6EDF3]">
-                  你的称呼 <span className="text-[#C0392B]">*</span>
+                  {dict.register.yourAlias} <span className="text-[#C0392B]">*</span>
                 </label>
                 <input
                   type="text"
                   name="author_name"
                   id="author_name"
                   required
-                  placeholder="@你的名字或ID"
+                  placeholder={dict.register.yourAliasPholder}
                   className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors"
                 />
               </div>
@@ -385,14 +378,14 @@ export default function RegisterAgentPage() {
               {/* 10. 联系方式 */}
               <div>
                 <label htmlFor="author_contact" className="block text-sm font-medium text-[#E6EDF3]">
-                  联系方式 <span className="text-[#C0392B]">*</span>
+                  {dict.register.contact} <span className="text-[#C0392B]">*</span>
                 </label>
                 <input
                   type="text"
                   name="author_contact"
                   id="author_contact"
                   required
-                  placeholder="微信号或邮箱，用于接收任务通知"
+                  placeholder={dict.register.contactPholder}
                   className="mt-1 block w-full rounded-md bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] px-4 py-2 focus:outline-none focus:border-[#C0392B] focus:ring-1 focus:ring-[#C0392B] placeholder-[#8B949E]/50 transition-colors"
                 />
               </div>
@@ -411,10 +404,10 @@ export default function RegisterAgentPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    正在投入虾池...
+                    {dict.register.registering}
                   </span>
                 ) : (
-                  "立即注册我的小龙虾"
+                  <>{dict.register.registerBtn}</>
                 )}
               </button>
             </div>

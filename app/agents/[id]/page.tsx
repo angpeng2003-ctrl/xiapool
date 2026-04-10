@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface Agent {
   id: string
@@ -50,6 +51,7 @@ export default function AgentDetailPage() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [showToast, setShowToast] = useState(false)
+  const { dict } = useLanguage()
 
   useEffect(() => {
     async function fetchAgent() {
@@ -96,7 +98,7 @@ export default function AgentDetailPage() {
       <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center">
         <div className="text-center font-mono">
           <div className="inline-block w-6 h-6 border-2 border-[#30363D] border-t-[#58A6FF] rounded-full animate-spin mb-4" />
-          <p className="text-xs tracking-[0.3em] text-[#484F58]">LOADING_AGENT_DATA...</p>
+          <p className="text-xs tracking-[0.3em] text-[#484F58]">{dict.agentDetail.loading}</p>
         </div>
       </div>
     )
@@ -108,10 +110,10 @@ export default function AgentDetailPage() {
       <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center">
         <div className="text-center font-mono">
           <p className="text-6xl mb-4">🦐</p>
-          <h1 className="text-2xl font-black mb-2">虾不见了</h1>
-          <p className="text-sm text-[#484F58] tracking-wider mb-8">{'// AGENT_NOT_FOUND — 该虾可能已被回收或不存在'}</p>
+          <h1 className="text-2xl font-black mb-2">{dict.agentDetail.notFoundTitle}</h1>
+          <p className="text-sm text-[#484F58] tracking-wider mb-8">{dict.agentDetail.notFoundDesc}</p>
           <Link href="/explore" className="text-xs tracking-widest border border-[#30363D] px-6 py-2 text-[#58A6FF] hover:bg-[#58A6FF]/10 hover:border-[#58A6FF]/40 transition-all">
-            ← 返回虾池广场
+            {dict.agentDetail.backToExplore}
           </Link>
         </div>
       </div>
@@ -127,7 +129,7 @@ export default function AgentDetailPage() {
       {/* ===== TOAST ===== */}
       {showToast && (
         <div className="fixed top-6 right-6 z-[100] bg-[#161B27] border border-[#30363D] px-5 py-3 text-xs font-mono tracking-wider text-[#8B949E] shadow-2xl shadow-black/40 animate-slide-in">
-          <span className="text-amber-400 mr-2">⚠</span> 功能开发中，敬请期待
+          <span className="text-amber-400 mr-2">⚠</span> {dict.agentDetail.devToast}
         </div>
       )}
 
@@ -138,7 +140,7 @@ export default function AgentDetailPage() {
           className="inline-flex items-center gap-2 text-xs font-mono tracking-wider text-[#58A6FF] hover:text-[#79C0FF] transition-colors mb-8 group"
         >
           <span className="group-hover:-translate-x-1 transition-transform">←</span>
-          <span>返回广场</span>
+          <span>{dict.agentDetail.backToExploreHeader}</span>
         </Link>
 
         {/* ===== HEADER ===== */}
@@ -146,7 +148,7 @@ export default function AgentDetailPage() {
           {/* Badges Row */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <span className={`text-[10px] font-mono tracking-wider px-2.5 py-1 ${ROLE_BADGE_COLORS[agent.role_type] || 'bg-[#21262D] text-[#8B949E] border border-[#30363D]'}`}>
-              {agent.role_type}
+              {dict.explore.roleMapping[agent.role_type as keyof typeof dict.explore.roleMapping] || agent.role_type}
             </span>
             {agent.framework && (
               <span className="text-[10px] font-mono tracking-wider px-2.5 py-1 bg-[#0D1117] text-[#8B949E] border border-[#21262D]">
@@ -176,14 +178,14 @@ export default function AgentDetailPage() {
           <div className="lg:col-span-3 bg-[#161B27] border border-[#21262D] p-6 relative overflow-hidden group">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-[#58A6FF]/30 via-transparent to-transparent" />
             <p className="text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-4">
-              {'一句话介绍 / ABSTRACT'}
+              {dict.agentDetail.abstract}
             </p>
             {/* Decorative icon */}
             <div className="absolute top-5 right-5 w-10 h-10 border border-[#21262D] flex items-center justify-center text-[#30363D] text-lg group-hover:border-[#30363D] transition-colors">
               ◎
             </div>
             <p className="text-sm sm:text-base leading-relaxed text-[#C9D1D9] max-w-xl">
-              {agent.description || '暂无介绍'}
+              {agent.description || dict.agentDetail.noDescription}
             </p>
           </div>
 
@@ -191,7 +193,7 @@ export default function AgentDetailPage() {
           <div className="lg:col-span-2 bg-[#161B27] border border-[#21262D] p-6">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#58A6FF]/20 to-transparent" />
             <p className="text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-4">
-              {'能力标签 / CAPABILITIES'}
+              {dict.agentDetail.capabilities}
             </p>
             <div className="flex flex-wrap gap-2">
               {skills.length > 0 ? skills.map((skill, i) => (
@@ -202,7 +204,7 @@ export default function AgentDetailPage() {
                   {skill}
                 </span>
               )) : (
-                <span className="text-xs text-[#30363D] font-mono">{'// NO_CAPABILITIES_LISTED'}</span>
+                <span className="text-xs text-[#30363D] font-mono">{dict.agentDetail.noCapabilities}</span>
               )}
             </div>
           </div>
@@ -215,7 +217,7 @@ export default function AgentDetailPage() {
             {inputPrefs.length > 0 && (
               <div className="bg-[#161B27] border border-[#21262D] p-6">
                 <p className="text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-5">
-                  {'🔗 输入偏好 / INPUT_PREF'}
+                  {dict.agentDetail.inputPref}
                 </p>
                 <div className="space-y-4">
                   {inputPrefs.map((pref, i) => (
@@ -238,7 +240,7 @@ export default function AgentDetailPage() {
             {agent.output_style && (
               <div className="bg-[#161B27] border border-[#21262D] p-6">
                 <p className="text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-5">
-                  {'⚡ 输出风格 / OUTPUT_STYLE'}
+                  {dict.agentDetail.outputStyle}
                 </p>
                 <div className="border-l-2 border-[#C0392B]/40 pl-4">
                   <p className="text-sm leading-relaxed text-[#8B949E] italic">
@@ -256,7 +258,7 @@ export default function AgentDetailPage() {
           <div className="lg:col-span-3 bg-[#161B27] border border-[#21262D] p-6">
             <div className="flex items-start justify-between mb-6">
               <p className="text-[10px] font-mono tracking-[0.2em] text-[#484F58]">
-                {'TOKEN 消耗级别 / RESOURCE_LOAD'}
+                {dict.agentDetail.resourceLoad}
               </p>
               <span className="text-3xl sm:text-4xl font-black tracking-tight text-[#E6EDF3]">
                 LV. {String(tokenInfo.level).padStart(2, '0')}
@@ -286,7 +288,7 @@ export default function AgentDetailPage() {
           {collabs.length > 0 && (
             <div className="lg:col-span-2 bg-[#161B27] border border-[#21262D] p-6">
               <p className="text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-5">
-                {'推荐协作对象 / NODES'}
+                {dict.agentDetail.recommendedNodes}
               </p>
               <div className="space-y-3">
                 {collabs.map((collab, i) => (
@@ -315,10 +317,10 @@ export default function AgentDetailPage() {
             </div>
             <div>
               <p className="text-[10px] font-mono tracking-[0.2em] text-[#30363D] mb-1">
-                {'OWNER / 管理者'}
+                {dict.agentDetail.owner}
               </p>
               <p className="text-lg font-bold tracking-tight text-[#E6EDF3]">
-                {agent.owner_name || 'Unknown'}
+                {agent.owner_name || dict.agentDetail.unknown}
               </p>
             </div>
           </div>
@@ -329,13 +331,13 @@ export default function AgentDetailPage() {
               onClick={handleFavorite}
               className="flex-1 sm:flex-none px-6 py-2.5 text-xs font-mono tracking-wider border border-[#C0392B] bg-[#C0392B]/10 text-[#C0392B] hover:bg-[#C0392B] hover:text-white transition-all duration-200"
             >
-              收藏这只虾
+              {dict.agentDetail.favorite}
             </button>
             <Link
               href="/tasks/new"
               className="flex-1 sm:flex-none px-6 py-2.5 text-xs font-mono tracking-wider text-center border border-[#58A6FF] bg-[#58A6FF]/10 text-[#58A6FF] hover:bg-[#58A6FF] hover:text-white transition-all duration-200"
             >
-              邀请协作
+              {dict.agentDetail.inviteCollab}
             </Link>
           </div>
         </section>

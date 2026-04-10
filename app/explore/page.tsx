@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface Agent {
   id: string
@@ -40,6 +41,7 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 9
+  const { dict } = useLanguage()
 
   useEffect(() => {
     async function fetchAgents() {
@@ -75,6 +77,9 @@ export default function ExplorePage() {
     setCurrentPage(1)
   }
 
+  // Preprocess hero title for newlines
+  const heroTitleLines = dict.explore.heroTitle.split('\n');
+
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
 
@@ -93,15 +98,15 @@ export default function ExplorePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="max-w-2xl">
             <p className="text-[#58A6FF] text-xs tracking-[0.3em] font-mono mb-6 opacity-70">
-              {'// AI_AGENT_MARKETPLACE'}
+              {dict.explore.heroTag}
             </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 tracking-tight">
-              养虾的人赚钱，
-              <br />
-              用虾的人省钱。
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 tracking-tight flex flex-col gap-2">
+              {heroTitleLines.map((line, i) => (
+                <span key={i}>{line}</span>
+              ))}
             </h1>
             <p className="text-[#8B949E] text-sm sm:text-base leading-relaxed max-w-lg">
-              一个让 AI Agent 开发者和企业客户直接对接的产能交易平台。
+              {dict.explore.heroSubtitle}
             </p>
 
             {/* Decorative stats on the right side (desktop) */}
@@ -120,19 +125,22 @@ export default function ExplorePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex flex-wrap gap-2">
-              {ROLE_FILTERS.map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => handleFilterChange(filter)}
-                  className={`px-4 py-1.5 text-xs tracking-wider transition-all duration-200 border ${
-                    activeFilter === filter
-                      ? 'bg-[#C0392B] border-[#C0392B] text-white shadow-lg shadow-[#C0392B]/20'
-                      : 'border-[#30363D] text-[#8B949E] hover:text-[#E6EDF3] hover:border-[#58A6FF]/50 bg-[#161B27]'
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
+              {ROLE_FILTERS.map((filter) => {
+                const displayLabel = filter === '全部' ? dict.explore.filterAll : (dict.explore.roleMapping[filter as keyof typeof dict.explore.roleMapping] || filter)
+                return (
+                  <button
+                    key={filter}
+                    onClick={() => handleFilterChange(filter)}
+                    className={`px-4 py-1.5 text-xs tracking-wider transition-all duration-200 border ${
+                      activeFilter === filter
+                        ? 'bg-[#C0392B] border-[#C0392B] text-white shadow-lg shadow-[#C0392B]/20'
+                        : 'border-[#30363D] text-[#8B949E] hover:text-[#E6EDF3] hover:border-[#58A6FF]/50 bg-[#161B27]'
+                    }`}
+                  >
+                    {displayLabel}
+                  </button>
+                )
+              })}
             </div>
             <div className="text-[10px] tracking-widest text-[#484F58] font-mono">
               SORT_BY: <span className="text-[#8B949E]">EFFICIENCY</span>
@@ -161,120 +169,123 @@ export default function ExplorePage() {
           </div>
         ) : paginatedAgents.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-[#484F58] font-mono text-sm tracking-wider">{'// NO_AGENTS_FOUND'}</p>
-            <p className="text-[#30363D] text-xs mt-2 font-mono">尝试切换筛选条件</p>
+            <p className="text-[#484F58] font-mono text-sm tracking-wider">{dict.explore.noAgentsFound}</p>
+            <p className="text-[#30363D] text-xs mt-2 font-mono">{dict.explore.tryChangingFilters}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {paginatedAgents.map((agent, index) => (
-              <div
-                key={agent.id}
-                className="group bg-[#161B27] border border-[#21262D] hover:border-[#30363D] transition-all duration-300 flex flex-col relative overflow-hidden"
-                style={{ animationDelay: `${index * 60}ms` }}
-              >
-                {/* Subtle top accent line */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#58A6FF]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            {paginatedAgents.map((agent, index) => {
+              const displayRole = dict.explore.roleMapping[agent.role_type as keyof typeof dict.explore.roleMapping] || agent.role_type
+              return (
+                <div
+                  key={agent.id}
+                  className="group bg-[#161B27] border border-[#21262D] hover:border-[#30363D] transition-all duration-300 flex flex-col relative overflow-hidden"
+                  style={{ animationDelay: `${index * 60}ms` }}
+                >
+                  {/* Subtle top accent line */}
+                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#58A6FF]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                <div className="p-5 flex-1 flex flex-col">
-                  {/* Header: Type Code + Role Badge */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-[10px] font-mono tracking-widest text-[#484F58] uppercase">
-                      TYPE_{agent.role_type?.replace('虾', '')}_{String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span
-                      className={`text-[10px] font-mono tracking-wider px-2 py-0.5 ${
-                        ROLE_BADGE_COLORS[agent.role_type] || 'bg-[#21262D] text-[#8B949E] border border-[#30363D]'
-                      }`}
-                    >
-                      {agent.role_type}
-                    </span>
-                  </div>
-
-                  {/* Agent Name */}
-                  <h3 className="text-xl font-black tracking-tight mb-1 text-[#E6EDF3] group-hover:text-white transition-colors">
-                    {agent.name}
-                  </h3>
-
-                  {/* Framework Badge */}
-                  {agent.framework && (
-                    <span className="inline-block text-[10px] font-mono tracking-wider text-[#484F58] bg-[#0D1117] border border-[#21262D] px-2 py-0.5 w-fit mb-4">
-                      {agent.framework}
-                    </span>
-                  )}
-
-                  {/* Skills Tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-5">
-                    {(agent.skills || []).slice(0, 3).map((skill, i) => (
+                  <div className="p-5 flex-1 flex flex-col">
+                    {/* Header: Type Code + Role Badge */}
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[10px] font-mono tracking-widest text-[#484F58] uppercase">
+                        TYPE_{agent.role_type?.replace('虾', '')}_{String(index + 1).padStart(2, '0')}
+                      </span>
                       <span
-                        key={i}
-                        className="text-[10px] font-mono tracking-wider text-[#8B949E] bg-[#0D1117] border border-[#21262D] px-2 py-0.5"
+                        className={`text-[10px] font-mono tracking-wider px-2 py-0.5 ${
+                          ROLE_BADGE_COLORS[agent.role_type] || 'bg-[#21262D] text-[#8B949E] border border-[#30363D]'
+                        }`}
                       >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Output Capacity & Pricing */}
-                  <div className="flex flex-col gap-2 mb-5">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-mono text-[#30363D] mb-0.5 tracking-wider">产出能力 / CAPACITY</span>
-                      <span className="text-xs text-[#C9D1D9] truncate" title={agent.output_capacity || ''}>
-                        {agent.output_capacity || '未注明'}
+                        {displayRole}
                       </span>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-mono text-[#30363D] mb-0.5 tracking-wider">服务报价 / PRICING</span>
-                      <span className="text-xs font-bold text-[#E6EDF3]">
-                        {agent.pricing_tier || '未注明'}
+
+                    {/* Agent Name */}
+                    <h3 className="text-xl font-black tracking-tight mb-1 text-[#E6EDF3] group-hover:text-white transition-colors">
+                      {agent.name}
+                    </h3>
+
+                    {/* Framework Badge */}
+                    {agent.framework && (
+                      <span className="inline-block text-[10px] font-mono tracking-wider text-[#484F58] bg-[#0D1117] border border-[#21262D] px-2 py-0.5 w-fit mb-4">
+                        {agent.framework}
+                      </span>
+                    )}
+
+                    {/* Skills Tags */}
+                    <div className="flex flex-wrap gap-1.5 mb-5">
+                      {(agent.skills || []).slice(0, 3).map((skill, i) => (
+                        <span
+                          key={i}
+                          className="text-[10px] font-mono tracking-wider text-[#8B949E] bg-[#0D1117] border border-[#21262D] px-2 py-0.5"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Output Capacity & Pricing */}
+                    <div className="flex flex-col gap-2 mb-5">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-mono text-[#30363D] mb-0.5 tracking-wider">{dict.explore.outputCapacity}</span>
+                        <span className="text-xs text-[#C9D1D9] truncate" title={agent.output_capacity || ''}>
+                          {agent.output_capacity || dict.explore.notProvided}
+                        </span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-mono text-[#30363D] mb-0.5 tracking-wider">{dict.explore.pricing}</span>
+                        <span className="text-xs font-bold text-[#E6EDF3]">
+                          {agent.pricing_tier || dict.explore.notProvided}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Token Level & Owner */}
+                    <div className="flex items-center justify-between text-[10px] font-mono tracking-wider text-[#484F58] mb-4">
+                      <div>
+                        <span className="text-[#30363D]">TOKEN_LEVEL</span>
+                        <br />
+                        <span className="text-[#8B949E]">{agent.token_level || '—'}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[#30363D]">OWNER</span>
+                        <br />
+                        <span className="text-[#8B949E]">@{agent.owner_name || 'UNKNOWN'}</span>
+                      </div>
+                    </div>
+
+                    {/* Online Status */}
+                    <div className="flex items-center gap-1.5 mb-5 text-[10px] font-mono tracking-wider">
+                      <span
+                        className={`inline-block w-1.5 h-1.5 rounded-full ${
+                          agent.is_online
+                            ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]'
+                            : 'bg-[#484F58]'
+                        }`}
+                      />
+                      <span className={agent.is_online ? 'text-emerald-400' : 'text-[#484F58]'}>
+                        {agent.is_online ? 'ONLINE' : 'OFFLINE'}
+                      </span>
+                      <span className="text-[#30363D] ml-1">/</span>
+                      <span className="text-[#30363D]">
+                        {agent.is_online ? dict.explore.online : dict.explore.offline}
                       </span>
                     </div>
+
+                    {/* Spacer */}
+                    <div className="flex-1" />
+
+                    {/* CTA Button */}
+                    <Link
+                      href={`/agents/${agent.id}`}
+                      className="block w-full text-center text-xs font-mono tracking-wider py-2.5 border border-[#21262D] bg-[#0D1117] text-[#58A6FF] hover:bg-[#58A6FF]/10 hover:border-[#58A6FF]/40 transition-all duration-200 group-hover:border-[#58A6FF]/30"
+                    >
+                      {dict.explore.viewDetails} <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                    </Link>
                   </div>
-
-                  {/* Token Level & Owner */}
-                  <div className="flex items-center justify-between text-[10px] font-mono tracking-wider text-[#484F58] mb-4">
-                    <div>
-                      <span className="text-[#30363D]">TOKEN_LEVEL</span>
-                      <br />
-                      <span className="text-[#8B949E]">{agent.token_level || '—'}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[#30363D]">OWNER</span>
-                      <br />
-                      <span className="text-[#8B949E]">@{agent.owner_name || 'UNKNOWN'}</span>
-                    </div>
-                  </div>
-
-                  {/* Online Status */}
-                  <div className="flex items-center gap-1.5 mb-5 text-[10px] font-mono tracking-wider">
-                    <span
-                      className={`inline-block w-1.5 h-1.5 rounded-full ${
-                        agent.is_online
-                          ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]'
-                          : 'bg-[#484F58]'
-                      }`}
-                    />
-                    <span className={agent.is_online ? 'text-emerald-400' : 'text-[#484F58]'}>
-                      {agent.is_online ? 'ONLINE' : 'OFFLINE'}
-                    </span>
-                    <span className="text-[#30363D] ml-1">/</span>
-                    <span className="text-[#30363D]">
-                      {agent.is_online ? '共同联系' : '暂不可用'}
-                    </span>
-                  </div>
-
-                  {/* Spacer */}
-                  <div className="flex-1" />
-
-                  {/* CTA Button */}
-                  <Link
-                    href={`/agents/${agent.id}`}
-                    className="block w-full text-center text-xs font-mono tracking-wider py-2.5 border border-[#21262D] bg-[#0D1117] text-[#58A6FF] hover:bg-[#58A6FF]/10 hover:border-[#58A6FF]/40 transition-all duration-200 group-hover:border-[#58A6FF]/30"
-                  >
-                    查看详情 <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
-                  </Link>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
 

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const ROLE_OPTIONS = [
   { value: '内容虾', icon: '✍' },
@@ -43,6 +44,7 @@ const TRIAL_OPTIONS = ['是', '否']
 
 export default function NewTaskPage() {
   const router = useRouter()
+  const { dict } = useLanguage()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [neededRoles, setNeededRoles] = useState<string[]>([])
@@ -99,10 +101,10 @@ export default function NewTaskPage() {
             <span className="text-[#C0392B]">◆</span> MISSION PROTOCOL V4.0.2
           </p>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-3">
-            发布协作任务
+            {dict.taskNew.title}
           </h1>
           <p className="text-sm text-[#8B949E] max-w-lg">
-            描述你的需求，我们会在 24 小时内为你匹配合适的虾。
+            {dict.taskNew.subtitle}
           </p>
         </div>
 
@@ -111,9 +113,9 @@ export default function NewTaskPage() {
           <div className="fixed inset-0 z-[100] bg-[#0D1117]/80 backdrop-blur-sm flex items-center justify-center">
             <div className="bg-[#161B27] border border-[#21262D] p-8 max-w-md text-center">
               <p className="text-4xl mb-4">✅</p>
-              <h2 className="text-xl font-bold mb-3">任务已提交！</h2>
+              <h2 className="text-xl font-bold mb-3">{dict.taskNew.submitSuccess}</h2>
               <p className="text-sm text-[#8B949E] leading-relaxed">
-                我们会在 24 小时内联系你匹配合适的虾。
+                {dict.taskNew.submitSuccessMsg}
               </p>
               <p className="text-[10px] font-mono tracking-widest text-[#30363D] mt-4">
                 REDIRECTING TO /EXPLORE ...
@@ -124,7 +126,7 @@ export default function NewTaskPage() {
 
         {submitResult === 'error' && (
           <div className="mb-6 bg-[#C0392B]/10 border border-[#C0392B]/30 px-5 py-3 text-sm text-[#C0392B] font-mono">
-            ⚠ 提交失败，请稍后重试
+            {dict.taskNew.submitError}
           </div>
         )}
 
@@ -135,13 +137,13 @@ export default function NewTaskPage() {
             {/* Task Title */}
             <div>
               <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-3">
-                {'任务标题 / TASK_TITLE'}
+                {dict.taskNew.taskTitle}
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="一句话描述你的任务"
+                placeholder={dict.taskNew.taskTitlePholder}
                 className="w-full bg-[#161B27] border border-[#21262D] px-4 py-3 text-sm text-[#E6EDF3] placeholder-[#30363D] focus:outline-none focus:border-[#58A6FF]/50 transition-colors font-mono"
               />
             </div>
@@ -149,12 +151,12 @@ export default function NewTaskPage() {
             {/* Task Description */}
             <div>
               <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-3">
-                {'任务描述 / DETAILS'}
+                {dict.taskNew.details}
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="详细说明任务背景、目标、要求..."
+                placeholder={dict.taskNew.detailsPholder}
                 rows={7}
                 className="w-full bg-[#161B27] border border-[#21262D] px-4 py-3 text-sm text-[#E6EDF3] placeholder-[#30363D] focus:outline-none focus:border-[#58A6FF]/50 transition-colors font-mono resize-none"
               />
@@ -163,11 +165,12 @@ export default function NewTaskPage() {
             {/* Needed Roles */}
             <div>
               <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-4">
-                {'需要的虾类型 / AGENT_SPECIALIZATION'}
+                {dict.taskNew.agentSpecialization}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {ROLE_OPTIONS.map((role) => {
                   const selected = neededRoles.includes(role.value)
+                  const displayValue = dict.explore.roleMapping[role.value as keyof typeof dict.explore.roleMapping] || role.value;
                   return (
                     <button
                       key={role.value}
@@ -180,7 +183,7 @@ export default function NewTaskPage() {
                       }`}
                     >
                       <span className="text-base">{role.icon}</span>
-                      <span>{role.value}</span>
+                      <span>{displayValue}</span>
                       {selected && (
                         <span className="ml-auto text-[#58A6FF]">✓</span>
                       )}
@@ -193,7 +196,7 @@ export default function NewTaskPage() {
             {/* Output Format */}
             <div>
               <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-4">
-                {'预期输出格式 / OUTPUT_FORMAT'}
+                {dict.taskNew.outputFormat}
               </label>
               <div className="flex flex-wrap gap-4">
                 {OUTPUT_OPTIONS.map((opt) => (
@@ -233,7 +236,7 @@ export default function NewTaskPage() {
             {/* Task Cycle */}
             <div>
               <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-4">
-                {'任务周期 / TASK_CYCLE'}
+                {dict.taskNew.taskCycle}
               </label>
               <div className="flex flex-wrap gap-4">
                 {TASK_CYCLE_OPTIONS.map((opt) => (
@@ -251,19 +254,19 @@ export default function NewTaskPage() {
             {/* Expected Output */}
             <div>
               <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-3">
-                {'预计产出量 / EXPECTED_OUTPUT'}
+                {dict.taskNew.expectedOutput}
               </label>
-              <input type="text" value={expectedOutput} onChange={(e) => setExpectedOutput(e.target.value)} placeholder="例：每天30条产品描述 / 每周1份分析报告" className="w-full bg-[#161B27] border border-[#21262D] px-4 py-3 text-sm text-[#E6EDF3] placeholder-[#30363D] focus:outline-none focus:border-[#58A6FF]/50 transition-colors font-mono" />
+              <input type="text" value={expectedOutput} onChange={(e) => setExpectedOutput(e.target.value)} placeholder={dict.taskNew.expectedOutputPholder} className="w-full bg-[#161B27] border border-[#21262D] px-4 py-3 text-sm text-[#E6EDF3] placeholder-[#30363D] focus:outline-none focus:border-[#58A6FF]/50 transition-colors font-mono" />
             </div>
 
             {/* Budget Range */}
             <div>
               <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-3">
-                {'预算范围 / BUDGET_RANGE'}
+                {dict.taskNew.budgetRange}
               </label>
               <div className="relative">
                 <select value={budgetRange} onChange={(e) => setBudgetRange(e.target.value)} className="w-full bg-[#161B27] border border-[#21262D] px-4 py-3 text-sm text-[#E6EDF3] focus:outline-none focus:border-[#58A6FF]/50 transition-colors font-mono appearance-none">
-                  <option value="">请选择预算范围...</option>
+                  <option value="">{dict.taskNew.budgetPholder}</option>
                   {BUDGET_OPTIONS.map((opt) => (
                     <option key={opt} value={opt}>{opt}</option>
                   ))}
@@ -277,7 +280,7 @@ export default function NewTaskPage() {
             {/* Need Trial */}
             <div>
               <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-4">
-                {'需要免费试跑 / NEED_TRIAL (选填)'}
+                {dict.taskNew.needTrial}
               </label>
               <div className="flex flex-wrap gap-4">
                 {TRIAL_OPTIONS.map((opt) => (
@@ -295,17 +298,17 @@ export default function NewTaskPage() {
             {/* Contact Info */}
             <div>
               <label className="block text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-3">
-                {'联系方式 / CONTACT_INFO'}
+                {dict.taskNew.contactInfo}
               </label>
               <input
                 type="text"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
-                placeholder="微信号或邮箱"
+                placeholder={dict.taskNew.contactPholder}
                 className="w-full bg-[#161B27] border border-[#21262D] px-4 py-3 text-sm text-[#E6EDF3] placeholder-[#30363D] focus:outline-none focus:border-[#58A6FF]/50 transition-colors font-mono"
               />
               <p className="text-[10px] font-mono tracking-wider text-[#30363D] mt-2">
-                我们会通过这个联系方式为你匹配合适的虾
+                {dict.taskNew.contactTip}
               </p>
             </div>
 
@@ -322,10 +325,10 @@ export default function NewTaskPage() {
               {submitting ? (
                 <>
                   <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  SUBMITTING...
+                  {dict.taskNew.submitting}
                 </>
               ) : (
-                <>🦐 发布任务</>
+                <>{dict.taskNew.publishBtn}</>
               )}
             </button>
           </div>
@@ -335,7 +338,7 @@ export default function NewTaskPage() {
             {/* Active Agents */}
             <div className="bg-[#161B27] border border-[#21262D] p-5">
               <p className="text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-5">
-                {'当前活跃虾 / ACTIVE_AGENTS'}
+                {dict.taskNew.activeAgents}
               </p>
               <div className="space-y-3">
                 {ACTIVE_AGENTS.map((agent, i) => (
@@ -361,7 +364,7 @@ export default function NewTaskPage() {
                         ? 'border-amber-500/30 text-amber-400 bg-amber-500/10'
                         : 'border-blue-500/30 text-blue-400 bg-blue-500/10'
                     }`}>
-                      {agent.color === 'text-amber-400' ? '忙碌中' : '在线'}
+                      {agent.color === 'text-amber-400' ? dict.taskNew.statusBusy : dict.taskNew.statusOnline}
                     </span>
                   </div>
                 ))}
@@ -371,11 +374,11 @@ export default function NewTaskPage() {
             {/* Protocol Tip */}
             <div className="bg-[#161B27] border border-[#21262D] p-5">
               <p className="text-[10px] font-mono tracking-[0.2em] text-[#484F58] mb-4">
-                PROTOCOL_TIP
+                {dict.taskNew.protocolTipTitle}
               </p>
               <div className="border-l-2 border-[#58A6FF]/30 pl-3">
                 <p className="text-xs text-[#8B949E] leading-relaxed">
-                  精确的任务描述将匹配效率提升 45%。建议在描述中包含预期的交付格式和核心关注点。
+                  {dict.taskNew.protocolTipDesc}
                 </p>
               </div>
               <p className="text-[9px] font-mono tracking-widest text-[#21262D] mt-3">
