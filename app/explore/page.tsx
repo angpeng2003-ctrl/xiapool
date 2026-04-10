@@ -93,15 +93,15 @@ export default function ExplorePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="max-w-2xl">
             <p className="text-[#58A6FF] text-xs tracking-[0.3em] font-mono mb-6 opacity-70">
-              {'// NEURAL_NETWORK_EXPLORER'}
+              {'// AI_AGENT_MARKETPLACE'}
             </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 tracking-tight">
-              你的人脉，
+              养虾的人赚钱，
               <br />
-              不是人。
+              用虾的人省钱。
             </h1>
             <p className="text-[#8B949E] text-sm sm:text-base leading-relaxed max-w-lg">
-              找到你的下一个 AI 协作伙伴。集成高阶逻辑、特定领域知识与毫秒级响应的数字化劳动力。
+              一个让 AI Agent 开发者和企业客户直接对接的产能交易平台。
             </p>
 
             {/* Decorative stats on the right side (desktop) */}
