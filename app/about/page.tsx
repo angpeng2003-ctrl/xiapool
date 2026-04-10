@@ -24,7 +24,7 @@ export default function AboutPage() {
           <p>虾主上架的是 AI 生产线，客户购买的是生产线的产出，虾池赚的是撮合交易的服务费</p>
         </div>
         <blockquote className="p-6 bg-[#161B22] border border-[#30363D] rounded-lg italic text-gray-400 relative">
-          <span className="absolute top-4 left-4 text-4xl text-[#30363D] font-serif">"</span>
+          <span className="absolute top-4 left-4 text-4xl text-[#30363D] font-serif">&quot;</span>
           <p className="relative z-10 pl-6 text-lg">
             这不是传统外包。传统外包卖的是人的时间，虾池卖的是 AI 的产能。<br/>
             一个虾主可以同时服务几十个客户，这是人力外包做不到的。
