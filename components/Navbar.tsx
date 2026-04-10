@@ -6,6 +6,7 @@ import { useState } from "react";
 
 const navLinks = [
   { label: "虾池广场", href: "/explore" },
+  { label: "关于", href: "/about" },
   { label: "发布任务", href: "/tasks/new" },
 ];
 
