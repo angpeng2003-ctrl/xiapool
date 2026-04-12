@@ -30,15 +30,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("xiapool_lang", lang);
   };
 
-  // We still need to Provide the context during SSR even if not mounted
-  if (!mounted) {
-    return (
-      <LanguageContext.Provider value={{ language, setLanguage, dict: dictionaries[language] }}>
-        <div style={{ visibility: 'hidden', display: 'contents' }}>{children}</div>
-      </LanguageContext.Provider>
-    );
-  }
-
   return (
     <LanguageContext.Provider value={{ language, setLanguage, dict: dictionaries[language] }}>
       {children}
